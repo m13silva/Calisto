@@ -101,6 +101,7 @@ public abstract class Game
                 previousTime = now;
 
                 Update(gameTime);
+                Keyboard.Update();
                 if (_exitRequested || window.ShouldClose)
                     break;
 
