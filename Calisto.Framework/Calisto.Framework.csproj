@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net11.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ahwoo.Brutal.Core" Version="2026.10.4" />
+    <PackageReference Include="Ahwoo.Brutal.Glfw" Version="2026.10.5" />
+    <PackageReference Include="Ahwoo.Brutal.Numerics" Version="2026.10.2" />
+    <PackageReference Include="Ahwoo.Brutal.OpenGl" Version="2026.10.2" />
+    <PackageReference Include="Ahwoo.Brutal.Texture" Version="2026.10.3" />
+    <PackageReference Include="Ahwoo.Brutal.Texture.Abstractions" Version="2026.10.3" />
+  </ItemGroup>
+</Project>
