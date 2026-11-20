@@ -90,6 +90,10 @@ public abstract class Game
         try
         {
             LoadContent();
+            using (var splash = new SplashScreen(GraphicsDevice, SpriteBatch))
+                splash.Run(window);
+            Keyboard.Update();
+
             var timer = Stopwatch.StartNew();
             var previousTime = timer.Elapsed;
 

@@ -14,4 +14,9 @@
     <PackageReference Include="Ahwoo.Brutal.Texture" Version="2026.10.3" />
     <PackageReference Include="Ahwoo.Brutal.Texture.Abstractions" Version="2026.10.3" />
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\assets\LOGO_BRUTAL_WHT.png" LogicalName="Calisto.Framework.LOGO_BRUTAL_WHT.png" />
+    <None Include="..\NOTICE.txt" Link="NOTICE.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

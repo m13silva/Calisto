@@ -77,6 +77,41 @@ public sealed class Texture2D : IDisposable
         }
     }
 
+    public static Texture2D FromMemory(
+        GraphicsDevice graphicsDevice,
+        ReadOnlySpan<byte> data,
+        TextureLoader.FormatType format
+    )
+    {
+        ArgumentNullException.ThrowIfNull(graphicsDevice);
+        if (data.IsEmpty)
+            throw new ArgumentException("Image data cannot be empty.", nameof(data));
+
+        var image = TextureLoader.LoadFromMemory(
+            data,
+            format,
+            Brutal.TextureApi.Stb.Loader.LoadSettings.ForceRgba8
+        );
+        try
+        {
+            if (image.Format != TextureFormat.R8G8B8A8_UNorm)
+                throw new NotSupportedException(
+                    $"Texture format {image.Format} is not supported; expected RGBA8."
+                );
+
+            return new Texture2D(
+                graphicsDevice,
+                image.Extent.X,
+                image.Extent.Y,
+                image.ImageData(0, 0, 0)
+            );
+        }
+        finally
+        {
+            TextureLoader.Unload(image);
+        }
+    }
+
     public int Width { get; }
     public int Height { get; }
 

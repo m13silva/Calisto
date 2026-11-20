@@ -42,16 +42,6 @@ sealed class GrottoGame : Game
     private bool _grounded = true;
     private bool _jumpWasDown;
     private int _facing = 1;
-    private enum GameState { Splash, Playing }
-
-    private const float SplashFadeIn = 0.5f;
-    private const float SplashHold = 1.5f;
-    private const float SplashFadeOut = 0.5f;
-    private const float SplashTotal = SplashFadeIn + SplashHold + SplashFadeOut;
-
-    private GameState _state = GameState.Splash;
-    private float _splashTime;
-    private Texture2D _brutalLogo = null!;
 
     protected override string WindowTitle => "Super Grotto Escape - Calisto";
     protected override int WindowWidth => 1248;
@@ -68,21 +58,11 @@ sealed class GrottoGame : Game
         _middleLayer = Content.LoadTexture("World/middle.png");
         _middleLayer2 = Content.LoadTexture("World/middle2.png");
         _logo = Content.LoadTexture("World/logo.png");
-
-        _brutalLogo = Content.LoadTexture("Splash/brutal.png");
     }
 
     protected override void Update(GameTime gameTime)
     {
         var delta = Math.Clamp((float)gameTime.ElapsedGameTime.TotalSeconds, 0, 1f / 30f);
-
-        if (_state == GameState.Splash)
-        {
-            _splashTime += delta;
-            if (_splashTime >= SplashTotal)
-                _state = GameState.Playing;
-            return;
-        }
 
         var horizontal =
             (Keyboard.IsKeyDown(KeyboardKey.D) || Keyboard.IsKeyDown(KeyboardKey.Right) ? 1 : 0)
@@ -153,11 +133,6 @@ sealed class GrottoGame : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        if (_state == GameState.Splash)
-        {
-            DrawSplash();
-            return;
-        }
         GraphicsDevice.Clear(new Color(21, 17, 34));
         SpriteBatch.Begin(_camera);
 
@@ -170,35 +145,6 @@ sealed class GrottoGame : Game
         SpriteBatch.Draw(_logo, new Rectangle(8, 8, 142, 32), Color.White);
 
         SpriteBatch.End();
-    }
-
-    private void DrawSplash()
-    {
-        GraphicsDevice.Clear(new Color(21, 17, 34));
-        SpriteBatch.Begin(_camera);
-
-        const float maxWidth = 160;   // ancho máximo en unidades del mundo
-        var scale = maxWidth / _brutalLogo.Width;
-        var width = _brutalLogo.Width * scale;
-        var height = _brutalLogo.Height * scale;
-
-        var destination = new Rectangle(
-            (WorldWidth - width) * 0.5f,
-            (WorldHeight - height) * 0.5f,
-            width,
-            height
-        );
-        SpriteBatch.Draw(_brutalLogo, destination, new Color(255, 255, 255, SplashAlpha()), false);
-
-        SpriteBatch.End();
-    }
-
-    private byte SplashAlpha()
-    {
-        var a = _splashTime < SplashFadeIn ? _splashTime / SplashFadeIn
-            : _splashTime < SplashFadeIn + SplashHold ? 1f
-            : 1f - (_splashTime - SplashFadeIn - SplashHold) / SplashFadeOut;
-        return (byte)(Math.Clamp(a, 0, 1) * 255);
     }
 
     private Texture2D[] LoadFrames(string pathPrefix, int frameCount)
