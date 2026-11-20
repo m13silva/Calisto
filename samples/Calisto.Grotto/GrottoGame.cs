@@ -1,8 +1,8 @@
 using System.Numerics;
-using Brutal.GlfwApi;
 using Calisto;
 using Calisto.Framework.Core;
 using Calisto.Framework.Core.Models;
+using Calisto.Framework.Input;
 using Calisto.Framework.Render;
 
 sealed class GrottoGame : Game
@@ -85,12 +85,12 @@ sealed class GrottoGame : Game
         }
 
         var horizontal =
-            (Keyboard.IsKeyDown(GlfwKey.D) || Keyboard.IsKeyDown(GlfwKey.Right) ? 1 : 0)
-            - (Keyboard.IsKeyDown(GlfwKey.A) || Keyboard.IsKeyDown(GlfwKey.Left) ? 1 : 0);
+            (Keyboard.IsKeyDown(KeyboardKey.D) || Keyboard.IsKeyDown(KeyboardKey.Right) ? 1 : 0)
+            - (Keyboard.IsKeyDown(KeyboardKey.A) || Keyboard.IsKeyDown(KeyboardKey.Left) ? 1 : 0);
         var jumpDown =
-            Keyboard.IsKeyDown(GlfwKey.Space)
-            || Keyboard.IsKeyDown(GlfwKey.W)
-            || Keyboard.IsKeyDown(GlfwKey.Up);
+            Keyboard.IsKeyDown(KeyboardKey.Space)
+            || Keyboard.IsKeyDown(KeyboardKey.W)
+            || Keyboard.IsKeyDown(KeyboardKey.Up);
 
         if (horizontal != 0)
             _facing = Math.Sign(horizontal);

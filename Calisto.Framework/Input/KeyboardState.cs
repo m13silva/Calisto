@@ -8,5 +8,18 @@ public readonly struct KeyboardState
 
     internal KeyboardState(GlfwWindow window) => _window = window;
 
-    public bool IsKeyDown(GlfwKey key) => _window.GetKey(key) == GlfwKeyAction.Press;
+    public bool IsKeyDown(KeyboardKey key) => _window.GetKey((GlfwKey)key) == GlfwKeyAction.Press;
+
+    public bool IsKeyUp(KeyboardKey key) => !IsKeyDown(key);
+
+    public bool AreKeysDown(params KeyboardKey[] keys)
+    {
+        foreach (var key in keys)
+        {
+            if (!IsKeyDown(key))
+                return false;
+        }
+
+        return true;
+    }
 }
