@@ -1,9 +1,11 @@
-using System.Numerics;
+using Brutal.Numerics;
 using Calisto;
 using Calisto.Framework.Core;
 using Calisto.Framework.Core.Models;
 using Calisto.Framework.Input;
 using Calisto.Framework.Render;
+
+using Color = Calisto.Framework.Core.Models.Color;
 
 sealed class GrottoGame : Game
 {
@@ -23,9 +25,10 @@ sealed class GrottoGame : Game
 
     private readonly Camera2D _camera = new()
     {
-        Position = new Vector2(WorldWidth * 0.5f, WorldHeight * 0.5f),
+        Position = new float2(WorldWidth * 0.5f, WorldHeight * 0.5f),
         Zoom = 3,
     };
+
     private Texture2D[] _idleFrames = [];
     private Texture2D[] _runFrames = [];
     private Texture2D[] _jumpFrames = [];
@@ -35,7 +38,7 @@ sealed class GrottoGame : Game
     private Texture2D _middleLayer = null!;
     private Texture2D _middleLayer2 = null!;
     private Texture2D _logo = null!;
-    private Vector2 _playerPosition = new(24, 208);
+    private float2 _playerPosition = new(24, 208);
     private float _verticalVelocity;
     private float _animationTime;
     private AnimationState _animationState;
@@ -112,7 +115,7 @@ sealed class GrottoGame : Game
 
         if (_playerPosition.Y > WorldHeight + 32)
         {
-            _playerPosition = new Vector2(24, 208);
+            _playerPosition = new float2(24, 208);
             _verticalVelocity = 0;
             _grounded = true;
         }
@@ -156,7 +159,7 @@ sealed class GrottoGame : Game
     }
 
     private void DrawBackgroundLayer(Texture2D texture, float x, float y) =>
-        SpriteBatch.Draw(texture, new Vector2(x, y), Color.White);
+        SpriteBatch.Draw(texture, new float2(x, y), Color.White);
 
     private void DrawPlatforms()
     {

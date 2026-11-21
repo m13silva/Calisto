@@ -1,5 +1,5 @@
-using System.Numerics;
 using Brutal.GlfwApi;
+using Brutal.Numerics;
 
 namespace Calisto.Framework.Input;
 
@@ -9,12 +9,12 @@ public readonly struct MouseState
 
     internal MouseState(GlfwWindow window) => _window = window;
 
-    public Vector2 Position
+    public float2 Position
     {
         get
         {
             var position = _window.CursorPos;
-            return new Vector2((float)position.X, (float)position.Y);
+            return new float2((float)position.X, (float)position.Y);
         }
     }
 

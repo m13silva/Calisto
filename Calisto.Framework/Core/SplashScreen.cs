@@ -1,8 +1,10 @@
 using System.Diagnostics;
 using Brutal.GlfwApi;
+using Brutal.Numerics;
 using Brutal.TextureApi;
-using Calisto.Framework.Core.Models;
 using Calisto.Framework.Render;
+
+using Color = Calisto.Framework.Core.Models.Color;
 
 namespace Calisto.Framework.Core;
 
@@ -56,7 +58,7 @@ internal sealed class SplashScreen : IDisposable
 
     private void DrawLogo(float elapsed)
     {
-        var viewport = _graphicsDevice.ViewportSize;
+        var viewport = _graphicsDevice.VirtualSize;
         if (viewport.X <= 0 || viewport.Y <= 0)
             return;
 
@@ -70,7 +72,8 @@ internal sealed class SplashScreen : IDisposable
             height
         );
 
-        _spriteBatch.Draw(_logo, destination, new Color(255, 255, 255, Alpha(elapsed)));
+        var alpha = Alpha(elapsed);
+        _spriteBatch.Draw(_logo, destination, new Color(255, 255, 255, alpha));
     }
 
     private static byte Alpha(float elapsed)

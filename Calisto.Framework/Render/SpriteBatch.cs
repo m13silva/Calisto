@@ -1,9 +1,7 @@
-using System.Numerics;
-using System.Runtime.InteropServices;
 using Brutal.Numerics;
 using Brutal.OpenGlApi;
 using Calisto.Framework.Core.Models;
-
+using System.Runtime.InteropServices;
 using Color = Calisto.Framework.Core.Models.Color;
 
 namespace Calisto.Framework.Render;
@@ -18,7 +16,7 @@ public sealed class SpriteBatch : IDisposable
     private readonly List<Vertex> _vertices = [];
     private readonly List<DrawRange> _ranges = [];
     private Texture2D? _lastTexture;
-    private Matrix3x2 _transform = Matrix3x2.Identity;
+    private float3x2 _transform = float3x2.Identity;
     private bool _begun;
     private bool _disposed;
 
@@ -48,14 +46,14 @@ public sealed class SpriteBatch : IDisposable
             throw new InvalidOperationException("SpriteBatch.Begin cannot be called while a batch is active.");
 
         var viewport = _graphicsDevice.ViewportSize;
-        _transform = camera?.CreateTransform(viewport.X, viewport.Y) ?? Matrix3x2.Identity;
+        _transform = camera?.CreateTransform(viewport.X, viewport.Y) ?? float3x2.Identity;
         _vertices.Clear();
         _ranges.Clear();
         _lastTexture = null;
         _begun = true;
     }
 
-    public void Draw(Texture2D texture, Vector2 position, Color tint)
+    public void Draw(Texture2D texture, float2 position, Color tint)
     {
         ArgumentNullException.ThrowIfNull(texture);
         Draw(texture, new Rectangle(position.X, position.Y, texture.Width, texture.Height), tint);
@@ -98,7 +96,7 @@ public sealed class SpriteBatch : IDisposable
     public void DrawRectangle(Rectangle destination, Color color, float rotation) =>
         AddQuad(_whiteTexture, destination, color, rotation, new Rectangle(0, 0, 1, 1), false);
 
-    public void DrawLine(Vector2 start, Vector2 end, float thickness, Color color)
+    public void DrawLine(float2 start, float2 end, float thickness, Color color)
     {
         var delta = end - start;
         DrawRectangle(
@@ -108,32 +106,28 @@ public sealed class SpriteBatch : IDisposable
         );
     }
 
-    public void DrawCircle(Vector2 center, float radius, Color color, int segments = 16)
+    public void DrawCircle(float2 center, float radius, Color color, int segments = 16)
     {
         EnsureBegun();
         if (radius <= 0 || segments < 3)
             return;
 
         EnsureRange(_whiteTexture);
-        var viewport = _graphicsDevice.ViewportSize;
-        if (viewport.X <= 0 || viewport.Y <= 0)
+        var virtualSize = _graphicsDevice.VirtualSize;
+        if (virtualSize.X <= 0 || virtualSize.Y <= 0)
             return;
 
-        var clipCenter = ToClip(Vector2.Transform(center, _transform), viewport.X, viewport.Y);
+        var clipCenter = ToClip(float2.Transform(center, _transform));
         var floatColor = ToFloatColor(color);
         for (var i = 0; i < segments; i++)
         {
             var angle0 = MathF.Tau * i / segments;
             var angle1 = MathF.Tau * (i + 1) / segments;
             var p0 = ToClip(
-                Vector2.Transform(center + new Vector2(MathF.Cos(angle0), MathF.Sin(angle0)) * radius, _transform),
-                viewport.X,
-                viewport.Y
+                float2.Transform(center + new float2(MathF.Cos(angle0), MathF.Sin(angle0)) * radius, _transform)
             );
             var p1 = ToClip(
-                Vector2.Transform(center + new Vector2(MathF.Cos(angle1), MathF.Sin(angle1)) * radius, _transform),
-                viewport.X,
-                viewport.Y
+                float2.Transform(center + new float2(MathF.Cos(angle1), MathF.Sin(angle1)) * radius, _transform)
             );
             AddTriangle(clipCenter, p0, p1, floatColor);
         }
@@ -198,8 +192,8 @@ public sealed class SpriteBatch : IDisposable
         )
             throw new ArgumentOutOfRangeException(nameof(source), "Source rectangle must fit within the texture.");
 
-        var viewport = _graphicsDevice.ViewportSize;
-        if (viewport.X <= 0 || viewport.Y <= 0)
+        var virtualSize = _graphicsDevice.VirtualSize;
+        if (virtualSize.X <= 0 || virtualSize.Y <= 0)
             return;
 
         EnsureRange(texture);
@@ -215,18 +209,18 @@ public sealed class SpriteBatch : IDisposable
             (leftU, rightU) = (rightU, leftU);
         var topV = source.Y / texture.Height;
         var bottomV = (source.Y + source.Height) / texture.Height;
-        var topLeft = ToClip(Vector2.Transform(
-            new Vector2(centerX - halfWidth * cosine + halfHeight * sine,
-                centerY - halfWidth * sine - halfHeight * cosine), _transform), viewport.X, viewport.Y);
-        var topRight = ToClip(Vector2.Transform(
-            new Vector2(centerX + halfWidth * cosine + halfHeight * sine,
-                centerY + halfWidth * sine - halfHeight * cosine), _transform), viewport.X, viewport.Y);
-        var bottomRight = ToClip(Vector2.Transform(
-            new Vector2(centerX + halfWidth * cosine - halfHeight * sine,
-                centerY + halfWidth * sine + halfHeight * cosine), _transform), viewport.X, viewport.Y);
-        var bottomLeft = ToClip(Vector2.Transform(
-            new Vector2(centerX - halfWidth * cosine - halfHeight * sine,
-                centerY - halfWidth * sine + halfHeight * cosine), _transform), viewport.X, viewport.Y);
+        var topLeft = ToClip(float2.Transform(
+            new float2(centerX - halfWidth * cosine + halfHeight * sine,
+                centerY - halfWidth * sine - halfHeight * cosine), _transform));
+        var topRight = ToClip(float2.Transform(
+            new float2(centerX + halfWidth * cosine + halfHeight * sine,
+                centerY + halfWidth * sine - halfHeight * cosine), _transform));
+        var bottomRight = ToClip(float2.Transform(
+            new float2(centerX + halfWidth * cosine - halfHeight * sine,
+                centerY + halfWidth * sine + halfHeight * cosine), _transform));
+        var bottomLeft = ToClip(float2.Transform(
+            new float2(centerX - halfWidth * cosine - halfHeight * sine,
+                centerY - halfWidth * sine + halfHeight * cosine), _transform));
         var color = ToFloatColor(tint);
 
         AddVertex(topLeft, leftU, topV, color);
@@ -241,10 +235,10 @@ public sealed class SpriteBatch : IDisposable
     private void AddVertex(float x, float y, float u, float v, float4 color) =>
         _vertices.Add(new Vertex(new float2(x, y), new float2(u, v), color));
 
-    private void AddVertex(Vector2 position, float u, float v, float4 color) =>
+    private void AddVertex(float2 position, float u, float v, float4 color) =>
         AddVertex(position.X, position.Y, u, v, color);
 
-    private void AddTriangle(Vector2 a, Vector2 b, Vector2 c, float4 color)
+    private void AddTriangle(float2 a, float2 b, float2 c, float4 color)
     {
         AddVertex(a, 0, 0, color);
         AddVertex(b, 0, 0, color);
@@ -267,11 +261,18 @@ public sealed class SpriteBatch : IDisposable
         _ranges[^1] = lastRange with { Count = lastRange.Count + count };
     }
 
-    private static Vector2 ToClip(float x, float y, int width, int height) =>
-        new(x / width * 2f - 1f, 1f - y / height * 2f);
+    private float2 ToClip(float2 screenPosition)
+    {
+        var viewport = _graphicsDevice.ViewportSize;
+        if (viewport.X <= 0 || viewport.Y <= 0)
+            return float2.Zero;
 
-    private static Vector2 ToClip(Vector2 screenPosition, int width, int height) =>
-        ToClip(screenPosition.X, screenPosition.Y, width, height);
+        var position = _graphicsDevice.ToFramebuffer(screenPosition);
+        return new float2(
+            position.X / viewport.X * 2f - 1f,
+            1f - position.Y / viewport.Y * 2f
+        );
+    }
 
     private static float4 ToFloatColor(Color color) =>
         new(color.R / 255f, color.G / 255f, color.B / 255f, color.A / 255f);

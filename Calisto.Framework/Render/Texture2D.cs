@@ -9,7 +9,7 @@ public sealed class Texture2D : IDisposable
     private readonly GlTexture _texture;
     private bool _disposed;
 
-    public Texture2D(GraphicsDevice graphicsDevice, int width, int height, ReadOnlySpan<byte> rgbaData)
+    public Texture2D(GraphicsDevice graphicsDevice, int width, int height, ReadOnlySpan<byte> rgbaData, bool smooth = false)
     {
         ArgumentNullException.ThrowIfNull(graphicsDevice);
         if (width <= 0 || height <= 0)
@@ -42,8 +42,8 @@ public sealed class Texture2D : IDisposable
             }
         }
 
-        OpenGl.TexParameterFloat(OpenGl.GL_TEXTURE_2D, OpenGl.GL_TEXTURE_MIN_FILTER, (int)OpenGl.GL_NEAREST);
-        OpenGl.TexParameterFloat(OpenGl.GL_TEXTURE_2D, OpenGl.GL_TEXTURE_MAG_FILTER, (int)OpenGl.GL_NEAREST);
+        OpenGl.TexParameterFloat(OpenGl.GL_TEXTURE_2D, OpenGl.GL_TEXTURE_MIN_FILTER, (int)(smooth ? OpenGl.GL_LINEAR : OpenGl.GL_NEAREST));
+        OpenGl.TexParameterFloat(OpenGl.GL_TEXTURE_2D, OpenGl.GL_TEXTURE_MAG_FILTER, (int)(smooth ? OpenGl.GL_LINEAR : OpenGl.GL_NEAREST));
         OpenGl.TexParameterFloat(OpenGl.GL_TEXTURE_2D, OpenGl.GL_TEXTURE_WRAP_S, (int)OpenGl.GL_CLAMP_TO_EDGE);
         OpenGl.TexParameterFloat(OpenGl.GL_TEXTURE_2D, OpenGl.GL_TEXTURE_WRAP_T, (int)OpenGl.GL_CLAMP_TO_EDGE);
     }
